@@ -1,0 +1,43 @@
+{
+  "name": "nancheng/pfinal-container",
+  "description": "pfinal容器管理组件",
+  "authors": [
+    {
+      "name": "南丞",
+      "email": "Lampxiezi@163.com",
+      "homepage": "http://friday-go.cc/"
+    }
+  ],
+  "homepage": "https://github.com/pfinalclub/pfinal-container",
+  "license": "MIT",
+  "keywords": [
+    "pfinal",
+    "pfinal社区",
+    "PFinalClub",
+    "南丞",
+    "Q哥",
+    "php-container",
+    "container",
+    "pfinal-container"
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "pf\\container\\": "src/"
+    },
+    "files": [
+      "src/helper.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "tests\\": "tests"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "6.2"
+  },
+  "require": {
+    "php": ">=5.4.0"
+  }
+}
