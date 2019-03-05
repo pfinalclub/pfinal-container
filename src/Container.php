@@ -31,6 +31,8 @@
  */
 
 namespace pf\container;
+use pf\container\build\Base;
+
 class Container
 {
     protected static $link = null;

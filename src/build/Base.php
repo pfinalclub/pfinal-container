@@ -44,21 +44,43 @@ class Base implements \ArrayAccess
     //单例服务
     public $instances = [];
 
+    /**
+     * 服务绑定到容器
+     * @param $name
+     * @param $closure
+     * @param bool $force
+     */
     public function bind($name, $closure, $force = false)
     {
         $this->bindings[$name] = compact('closure', $force);
     }
 
+    /**
+     * 注册单例服务
+     * @param $name
+     * @param $closure
+     */
     public function single($name, $closure)
     {
         $this->bind($name, $closure, true);
     }
 
+    /**
+     * 单例服务
+     * @param $name
+     * @param $object
+     */
     public function instance($name, $object)
     {
         $this->instances[$name] = $object;
     }
 
+    /**
+     * 获取服务实例
+     * @param $name
+     * @param bool $force
+     * @return mixed|object
+     */
     public function make($name, $force = false)
     {
         if (isset($this->instances[$name])) {
@@ -75,11 +97,21 @@ class Base implements \ArrayAccess
         return $object;
     }
 
+    /**
+     * 获得实例实现
+     * @param $name
+     * @return mixed
+     */
     private function getClosure($name)
     {
         return isset($this->bindings[$name]) ? $this->bindings[$name]['closure'] : $name;
     }
 
+    /**
+     * 依赖注入方式调用函数
+     * @param $function
+     * @return mixed
+     */
     public function callFunction($function)
     {
         $reflectionFunction = new \ReflectionFunction($function);
@@ -89,6 +121,12 @@ class Base implements \ArrayAccess
         return $reflectionFunction->invokeArgs($args);
     }
 
+    /**
+     * 反射执行方法并实现依赖注入
+     * @param $class
+     * @param $method
+     * @return mixed
+     */
     public function callMethod($class, $method)
     {
         //反射方法实例
@@ -99,6 +137,11 @@ class Base implements \ArrayAccess
         return $reflectionMethod->invokeArgs($this->build($class), $args);
     }
 
+    /**
+     * 传递参数
+     * @param $parameters
+     * @return array
+     */
     public function getDependencies($parameters)
     {
         $dependencies = [];
@@ -117,6 +160,12 @@ class Base implements \ArrayAccess
         return $dependencies;
     }
 
+    /**
+     * 生成服务实例
+     * @param $className
+     * @return mixed|object
+     * @throws Exception
+     */
     public function build($className)
     {
         //匿名函数
@@ -144,6 +193,12 @@ class Base implements \ArrayAccess
         return $reflector->newInstanceArgs($dependencies);
     }
 
+    /**
+     * 提供参数默认值
+     * @param $parameter
+     * @return mixed
+     * @throws Exception
+     */
     public function resolveNonClass($parameter)
     {
         // 有默认值则返回默认值
@@ -153,9 +208,9 @@ class Base implements \ArrayAccess
         throw new Exception('参数无默认值');
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($key)
     {
-        // TODO: Implement offsetExists() method.
+        return isset($this->bindings[$key]);
     }
 
     public function offsetGet($key)
@@ -163,13 +218,29 @@ class Base implements \ArrayAccess
         return $this->make($key);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($key)
     {
-        // TODO: Implement offsetUnset() method.
+        unset($this->bindings[$key], $this->instances[$key]);
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($key, $value)
     {
-        // TODO: Implement offsetSet() method.
+        if (!$value instanceof Closure) {
+            $value = function () use ($value) {
+                return $value;
+            };
+        }
+        $this->bind($key, $value);
     }
+
+    public function __get($key)
+    {
+        return $this[$key];
+    }
+
+    public function __set($key, $value)
+    {
+        $this[$key] = $value;
+    }
+
 }
